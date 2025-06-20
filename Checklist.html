@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checklist Barang Bawaan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: linear-gradient(to right, #fefcea, #f1daff);
+      --card-bg: #ffffffcc;
+      --primary: #6c5ce7;
+      --accent: #fdcb6e;
+      --text: #2d3436;
+      --border-radius: 10px;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      background-attachment: fixed;
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary);
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+
+    .category {
+      background: var(--card-bg);
+      padding: 20px;
+      margin-bottom: 25px;
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      backdrop-filter: blur(5px);
+      animation: fadeIn 0.4s ease;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.3em;
+      color: var(--primary);
+      border-left: 5px solid var(--accent);
+      padding-left: 10px;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      justify-content: space-between;
+    }
+
+    label span {
+      display: flex;
+      align-items: center;
+      flex-grow: 1;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 12px;
+      width: 18px;
+      height: 18px;
+    }
+
+    input[type="checkbox"]:checked + span {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    .add-btn, .reset-btn {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      margin-top: 12px;
+      border: none;
+      border-radius: var(--border-radius);
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .reset-btn {
+      background: #d63031;
+    }
+
+    .add-btn:hover {
+      background: #5a4ac1;
+    }
+
+    .reset-btn:hover {
+      background: #c0392b;
+    }
+
+    .edit-btn {
+      margin-left: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌈 Checklist Barang Bawaan</h1>
+    <div id="categories"></div>
+    <button class="reset-btn" onclick="resetChecklist()">🔄 Reset Semua</button>
+  </div>
+
+  <script>
+    const defaultItems = {
+      "👕 Atasan": [
+        "Baju turtleneck putih", "Kemeja tnf hitam", "Baju tkj putih",
+        "Baju polo hitam", "Kemeja santai putih", "Kemeja boxy abu abu",
+        "Wearpack", "Hoodie zipper hitam", "Sweater polo hitam"
+      ],
+      "👖 Bawahan": [
+        "Celana pendek krem", "Celana formal hitam", "Celana baggy hitam",
+        "Celana pendek chino krem", "Celana tidur"
+      ],
+      "🧢 Accessories": [
+        "Sepatu clogs hitam", "Sandal selop putih", "Kaos kaki hitam & putih", "Bantal bis",
+        "Kacamata", "Topi krem & hitam/putih", "Cincin", "Acc sabuk",
+        "Sabuk abu-abu", "Sabuk hitam", "Tas selempang", "Jam tangan"
+      ],
+      "📱 Elektronik": [
+        "HP android", "HP iphone", "Speaker JBL", "Earphones", "IEM", "Charger Lightning & Type C"
+      ],
+      "🧼 Toiletries": [
+        "Sunscreen", "Sabun", "Shampoo", "Sikat gigi & odol", "Sabun wajah",
+        "Parfum siang malam", "Sisir", "Vitamin rambut"
+      ]
+    };
+
+    const container = document.getElementById("categories");
+
+    function saveItems(data) {
+      localStorage.setItem("checklistData", JSON.stringify(data));
+    }
+
+    function loadItems() {
+      return JSON.parse(localStorage.getItem("checklistData")) || defaultItems;
+    }
+
+    function renderCategories() {
+      const saved = loadItems();
+      container.innerHTML = '';
+
+      Object.keys(saved).forEach(cat => {
+        const div = document.createElement("div");
+        div.className = "category";
+        div.dataset.category = cat;
+
+        const h2 = document.createElement("h2");
+        h2.textContent = cat;
+        div.appendChild(h2);
+
+        const itemList = document.createElement("div");
+        saved[cat].forEach((item, i) => {
+          const label = document.createElement("label");
+
+          const left = document.createElement("span");
+          left.style.display = "flex";
+          left.style.alignItems = "center";
+          left.style.flexGrow = "1";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          const key = `${cat}-${i}`;
+          if (localStorage.getItem(key) === 'true') checkbox.checked = true;
+
+          checkbox.addEventListener("change", () => {
+            localStorage.setItem(key, checkbox.checked);
+          });
+
+          const itemText = document.createElement("span");
+          itemText.textContent = item;
+
+          left.appendChild(checkbox);
+          left.appendChild(itemText);
+
+          const editBtn = document.createElement("span");
+          editBtn.className = "edit-btn";
+          editBtn.textContent = "🖉";
+          editBtn.title = "Ganti nama barang";
+          editBtn.onclick = () => {
+            const newName = prompt("Ganti nama barang:", item);
+            if (newName && newName.trim()) {
+              saved[cat][i] = newName.trim();
+              saveItems(saved);
+              renderCategories(); // Refresh
+            }
+          };
+
+          label.appendChild(left);
+          label.appendChild(editBtn);
+          itemList.appendChild(label);
+        });
+
+        div.appendChild(itemList);
+
+        const addBtn = document.createElement("button");
+        addBtn.className = "add-btn";
+        addBtn.textContent = "➕ Tambah Barang";
+        addBtn.onclick = () => {
+          const input = prompt("Masukkan nama barang:");
+          if (input && input.trim()) {
+            saved[cat].push(input.trim());
+            saveItems(saved);
+            renderCategories();
+          }
+        };
+
+        div.appendChild(addBtn);
+        container.appendChild(div);
+      });
+    }
+
+    function resetChecklist() {
+      if (confirm("Yakin ingin menghapus semua checklist dan data?")) {
+        localStorage.clear();
+        renderCategories();
+      }
+    }
+
+    renderCategories();
+  </script>
+</body>
+</html>
